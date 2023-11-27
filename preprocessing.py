@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import math
 
-output_root_directory = "/Users/moctader/Thesis_code/output4/"
+output_root_directory = "/Users/moctader/Thesis_code/output20/"
 points = gpd.read_file("/Users/moctader/Thesis_code/GTK_ASsoil_obs.csv")
 points.POINT_X = points.POINT_X.astype("float")
 points.POINT_Y = points.POINT_Y.astype("float")
@@ -43,7 +43,7 @@ def find_nearest_tile(tile, tile_list):
 TILE_SIZE = 256
 
 
-def project(p, zoom):
+def project(p, zoom, point_class):
     lon, lat = p.geometry.x, p.geometry.y
 
     siny = np.sin(lat * np.pi / 180)
@@ -60,7 +60,7 @@ def project(p, zoom):
     px = x * scale % TILE_SIZE // 1
     py = y * scale % TILE_SIZE // 1
 
-    return (int(zoom), int(tx), int(ty)), (px, py)
+    return (int(zoom), int(tx), int(ty)), (px, py), point_class
 
 
 nearest_tile_dict = {}
@@ -80,8 +80,8 @@ def calculate_neighboring_tiles(tx, ty, radius=1):
 
 
 
-def combine_tiles(p, zoom, tile_template, t_value, nearest_tile_dict):
-    (tz, tx, ty), (px, py) = project(p, zoom=zoom)
+def combine_tiles(p, zoom, tile_template, t_value, point_class):
+    (tz, tx, ty), (px, py), point_class = project(p, zoom=zoom, point_class=point_class)
 
     # Get a list of all neighboring tiles
     radius = 1 
@@ -127,15 +127,30 @@ def combine_tiles(p, zoom, tile_template, t_value, nearest_tile_dict):
  
     center_x, center_y = px, py
     crop_size = 50
+    
+    # Calculate the crop box coordinates
+    left = max(0, px - crop_size // 2)
+    upper = max(0, py - crop_size // 2)
+    right = min(combined_image.width, px + crop_size // 2 + crop_size % 2)
+    lower = min(combined_image.height, py + crop_size // 2 + crop_size % 2)
 
-    # Calculate the crop box
-    left = max(0, center_x - crop_size // 2)
-    top = max(0, center_y - crop_size // 2)
-    right = min(combined_image.width, left + crop_size)
-    bottom = min(combined_image.height, top + crop_size)
+    # Calculate the amount of pixels needed to fill on each side
+    left_fill = max(0, crop_size - (right - left))
+    right_fill = max(0, crop_size - (right - left))
+    top_fill = max(0, crop_size - (lower - upper))
+    bottom_fill = max(0, crop_size - (lower - upper))
 
-    # Crop the region of interest
-    cropped_image = combined_image.crop((left, top, right, bottom))
+    # Adjust the crop box coordinates to fill missing pixels
+    left = max(0, left - right_fill)
+    right = min(combined_image.width, right + left_fill)
+    upper = max(0, upper - bottom_fill)
+    lower = min(combined_image.height, lower + top_fill)
+
+    # Crop the image
+
+
+    cropped_image = combined_image.crop((left, upper, right, lower))
+
 
     # plt.figure(figsize=(18, 5))  # Adjust the figure size as needed
 
@@ -152,15 +167,15 @@ def combine_tiles(p, zoom, tile_template, t_value, nearest_tile_dict):
     # plt.subplot(1, 2,2)
     # # 50x50 Image Centered around px, py
     # plt.imshow(cropped_image, interpolation="lanczos")
-    # plt.plot(center_x - left, center_y - top, "*", c="r", markersize=12)
-    # plt.text(center_x - left, center_y - top, f'({center_x}, {center_y})', color="r", fontsize=8,
+    # plt.plot(center_x - left, center_y - upper, "*", c="r", markersize=12)
+    # plt.text(center_x - left, center_y - upper, f'({center_x}, {center_y})', color="r", fontsize=8,
     #          verticalalignment='bottom', horizontalalignment='right')
     # plt.title("50x50 Image Centered around px, py")
 
     # plt.show()
 
     # Save the cropped image in a subdirectory based on the variable 't'
-    output_directory = os.path.join(output_root_directory, t_value)
+    output_directory = os.path.join(output_root_directory, t_value, point_class)
     os.makedirs(output_directory, exist_ok=True)
     output_path = os.path.join(output_directory, f"image_{p.name}.png")
     cropped_image.save(output_path)
