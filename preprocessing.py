@@ -10,7 +10,8 @@ import os
 import math
 import csv
 
-output_root_directory = "/Users/moctader/Thesis_code/out/"
+output_path='/Users/moctader/Thesis_code/px_px_csv'
+output_root_directory = "/Users/moctader/Thesis_code/out/in/"
 points = gpd.read_file("/Users/moctader/Thesis_code/GTK_ASsoil_obs.csv")
 points.POINT_X = points.POINT_X.astype("float")
 points.POINT_Y = points.POINT_Y.astype("float")
@@ -80,10 +81,14 @@ def calculate_neighboring_tiles(tx, ty, radius=1):
 
 
 results_list = []
+for inner_list in results_list:
+    print(inner_list)
 
 def combine_tiles(p, zoom, tile_template, t_value, point_class):
     (tz, tx, ty), (px, py), point_class = project(p, zoom=zoom, point_class=point_class)
-
+    
+    results_list.append([px, py])
+    print(px, py)
     # Get a list of all neighboring tiles
     radius = 1 
     neighboring_tiles = calculate_neighboring_tiles(tx, ty, radius)
@@ -153,8 +158,7 @@ def combine_tiles(p, zoom, tile_template, t_value, point_class):
     cropped_image = combined_image.crop((left, upper, right, lower))
     center_pixel_value = cropped_image.getpixel((center_x - left, center_y - upper))
 
-    print(center_pixel_value)
-    results_list.append([t_value, center_pixel_value, px, py, point_class])
+
 
 
     # plt.figure(figsize=(18, 5))  # Adjust the figure size as needed
@@ -188,8 +192,6 @@ def combine_tiles(p, zoom, tile_template, t_value, point_class):
     
 
     return cropped_image, tz, tx, ty
-
-
 
 
 
