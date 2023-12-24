@@ -18,7 +18,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 def extract_features_from_directory(image_path, label):
     feature_list = []
     labels = []
-    features = calculate_moments(image_path)
+    features = extract_central_pixel(image_path)
     feature_list.append(features)
     labels.append(label)
     #print(feature_list)
@@ -26,6 +26,20 @@ def extract_features_from_directory(image_path, label):
 
     return np.array(feature_list), labels
 
+
+def extract_central_pixel(image_path):
+    # Read the image
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+    # Calculate the coordinates of the center pixel
+    height, width = image.shape
+    center_row = int(np.floor(height / 2))
+    center_col = int(np.floor(width / 2))
+
+    # Extract the central pixel value
+    central_pixel = image[center_row, center_col, None]
+
+    return central_pixel
 
 def calculate_moments(image_path):
     # Read the image
