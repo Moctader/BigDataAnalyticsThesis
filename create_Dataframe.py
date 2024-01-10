@@ -5,9 +5,9 @@ from PIL import Image
 import os
 
 
-PREFIX = "/Users/akusok/wrkdir/Golam"  # folder with files
+PREFIX = "Users/moctader/Thesis_code"  # folder with files
 ZOOM_LEVEL = 10  # Zoom level
-DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples2.pkl"  # Path to the output file
+DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples.pkl"  # Path to the output file
 
 csv_path = f"{PREFIX}/GTK_ASsoil_obs.csv"
 base_directory = f'{PREFIX}/output20/'
