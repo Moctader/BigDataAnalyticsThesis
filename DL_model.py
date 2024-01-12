@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Input, Conv2D, Flatten, Dense
 
 # %%
 PREFIX = "/Users/moctader/Thesis_code"  # folder with files
-PREFIX = "/Users/akusok/wrkdir/Md-dataset"  # folder with files
+PREFIX = "/Users/akusok/wrkdir/Golam"  # folder with files
 
 # %%
 data_path = f"{PREFIX}/samples.pkl"
@@ -34,7 +34,7 @@ label = np.array(df['label'])
 
 # same thing but without waiting
 unique_indices = [12, 10, 11, 20, 22, 23, 19,  4, 27, 24,  0,  9, 21,  3,  5, 15, 18, 6]
-feature = X[:, 21:30, 21:30, unique_indices]
+feature = X[:, :, :, unique_indices]
 
 # %%
 # splitting
@@ -43,7 +43,7 @@ X_train, X_test, y_train, y_test = train_test_split(feature, label, test_size=0.
 # %%
 def make_model(scale=1.0):
     # Define the input shape
-    input_shape = (9, 9, 18)
+    input_shape = (50, 50, 18)
 
     # Define the input layer
     input_layer = Input(shape=input_shape)
