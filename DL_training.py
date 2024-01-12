@@ -26,7 +26,7 @@ label = np.array(df['label'])
 # feature=unique_arrays
 
 unique_indices = [12, 10, 11, 20, 22, 23, 19,  4, 27, 24,  0,  9, 21,  3,  5, 15, 18, 6]
-feature = X[:, :, :, unique_indices]
+feature = X[:, 21:30, 21:30, unique_indices]
 
 # %%
 # splitting
@@ -35,7 +35,7 @@ X_train, X_test, y_train, y_test = train_test_split(feature, label, test_size=0.
 # %%
 
 # Define the input shape
-input_shape = (50, 50, 18)
+input_shape = (9, 9, 18)
 
 # Define the input layer
 input_layer = Input(shape=input_shape)
@@ -63,7 +63,7 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001), loss='binar
 # %%
 
 # Train the model
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
 
 # %%
 
