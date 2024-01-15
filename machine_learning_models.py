@@ -1,3 +1,16 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+# ---
+
+# %%
 import zipfile
 import os
 from sklearn.linear_model import LogisticRegression
@@ -15,6 +28,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 
+# %%
 def extract_features_from_directory(image_path, label):
     feature_list = []
     labels = []
@@ -27,6 +41,7 @@ def extract_features_from_directory(image_path, label):
     return np.array(feature_list), labels
 
 
+# %%
 def extract_central_pixel(image_path):
     # Read the image
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -41,6 +56,7 @@ def extract_central_pixel(image_path):
 
     return central_pixel
 
+# %%
 def calculate_moments(image_path):
     # Read the image
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE) 
@@ -70,7 +86,9 @@ def calculate_moments(image_path):
     return mean_value, variance_value, skewness_value, kurtosis_value
 
 
+# %%
 
+# %%
 def calculate_f1_score(y_true, y_pred):
     precision = precision_score(y_true, y_pred)
     recall = recall_score(y_true, y_pred)
@@ -79,14 +97,18 @@ def calculate_f1_score(y_true, y_pred):
     return precision, recall, f1
 
 
+# %%
 
+# %%
 main_directory = '/Users/moctader/Thesis_code/output20/*'
 
 
+# %%
 # Get a list of all subdirectories inside main_directory
 directories = glob.glob(os.path.join(main_directory))
 
 
+# %%
 for directory in directories:
     # Check if the directory contains ASS data
     ass_directory = os.path.join(directory, 'ASS/')

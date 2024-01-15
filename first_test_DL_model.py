@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: vscode
+#     language: python
+#     name: vscode
+# ---
+
 # %%
 # Import Section
 
@@ -28,14 +44,16 @@ from tensorflow.keras.layers import Input, Conv2D, Flatten, Dense, Concatenate, 
 
 # %%
 # Paths 
-Read_data="/Users/moctader/Arcada/BigDataAnalyticsThesis/data/samples.pkl"
+PREFIX="/Users/moctader/Thesis_code/out/pickele"
 
+Read_data=F"{PREFIX}/samples.pkl"
 
 # Read Data
 df=gpd.GeoDataFrame(
     pd.read_pickle(Read_data),
     geometry="geometry"
 )
+
 
 # %%
 #combine channel and label extracted
@@ -45,13 +63,13 @@ label = np.array(df['label'])
 
 # %%
 # Find the unique channels(arrays) form the combined channels
-unique_arrays, unique_indices = np.unique(X, axis=-1, return_index=True)
+unique_indices = [12, 10, 11, 20, 22, 23, 19,  4, 27, 24,  0,  9, 21,  3,  5, 15, 18, 6]
+features = X[:, 13:37, 13:37, unique_indices]
 
 
 # %%
 # Assaign other features lattitude and longitude 
 
-features=unique_arrays
 latitude=np.array([np.array(row['lat']) for _, row in df.iterrows()])
 longitude=np.array([np.array(row['lon']) for _, row in df.iterrows()])
 
@@ -71,7 +89,7 @@ X_feature_train, X_feature_test, X_scalar_train, X_scalar_test, y_train, y_test 
 
 # %%
 # Define the CNN model for processing image features
-input_feature = Input(shape=(50, 50, 18))
+input_feature = Input(shape=(24, 24, 18))
 
 # Convolutional layers with increasing filters, dropout, batch normalization, and max pooling
 x = Conv2D(8, (3, 3), activation='relu')(input_feature)
@@ -87,6 +105,7 @@ x = Dropout(0.2)(x)
 x = Conv2D(32, (3, 3), activation='relu')(x)
 x = BatchNormalization()(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)  # Add MaxPooling
+
 x = Dropout(0.2)(x)
 
 # x = Conv2D(64, (3, 3), activation='relu')(x)
@@ -149,3 +168,85 @@ plt.show()
 
 
 
+
+# %% [markdown]
+# ### Dialated convolution 
+
+# %%
+from tensorflow.keras.layers import Conv2D, BatchNormalization, MaxPooling2D, Dropout, Flatten, Dense, Input, Concatenate
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+# Define the CNN model for processing image features
+input_feature = Input(shape=(24, 24, 18))
+
+# Convolutional layers with increasing filters, dropout, batch normalization, and max pooling
+x = Conv2D(8, (3, 3), activation='relu', dilation_rate=2)(input_feature)  # Example dilation_rate=2
+x = BatchNormalization()(x)
+x = MaxPooling2D(pool_size=(1, 1))(x)  # Add MaxPooling
+x = Dropout(0.2)(x)
+
+x = Conv2D(16, (3, 3), activation='relu', dilation_rate=2)(x)  # Example dilation_rate=2
+x = BatchNormalization()(x)
+x = MaxPooling2D(pool_size=(1, 1))(x)  # Add MaxPooling
+x = Dropout(0.2)(x)
+
+x = Conv2D(32, (3, 3), activation='relu', dilation_rate=2)(x)  # Example dilation_rate=2
+x = BatchNormalization()(x)
+x = MaxPooling2D(pool_size=(1, 1))(x)  # Add MaxPooling
+x = Dropout(0.2)(x)
+
+x = Flatten()(x)
+
+# Define the input layer for scalar values
+input_scalar = Input(shape=(2,))
+
+# Concatenate flattened features and scalar inputs
+merged_input = Concatenate()([x, input_scalar])
+
+# Additional hidden layer with fewer neurons, dropout, and batch normalization
+x = Dense(64, activation='relu')(merged_input)
+x = BatchNormalization()(x)
+x = Dropout(0.3)(x)
+
+x = Dense(32, activation='relu')(x)
+x = BatchNormalization()(x)
+x = Dropout(0.3)(x)
+
+# Output layer
+output = Dense(1, activation='sigmoid')(x)
+
+model = tf.keras.Model(inputs=[input_feature, input_scalar], outputs=output)
+
+# Use the Adam optimizer with a learning rate of 0.001
+custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+# Compile the model
+model.compile(optimizer=custom_optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+
+# Train the model with early stopping
+history = model.fit(
+    [X_feature_train, X_scalar_train],
+    y_train,
+    epochs=70,
+    batch_size=16,
+    validation_split=0.1,
+    # callbacks=[tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)]
+)
+
+# Evaluate the model on the test set
+loss, accuracy = model.evaluate([X_feature_test, X_scalar_test], y_test)
+print(f'Test Loss: {loss}')
+print(f'Test Accuracy: {accuracy}')
+
+# Plot learning curve
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Learning Curve')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+# %%
