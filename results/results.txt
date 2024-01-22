@@ -1,0 +1,16 @@
+
+Optimizer: sgd
+Test Loss: 0.6328206658363342
+Test Accuracy: 0.6472102999687195
+
+Optimizer: rmsprop
+Test Loss: 0.668016791343689
+Test Accuracy: 0.6300429105758667
+
+Optimizer: adam
+Test Loss: 0.6891878247261047
+Test Accuracy: 0.6283261775970459
+
+Optimizer: adagrad
+Test Loss: 0.6503638625144958
+Test Accuracy: 0.6326180100440979
