@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: vscode
+#     language: python
+#     name: vscode
+# ---
+
 # %%
 # Import Section
 
@@ -8,17 +24,17 @@ import os
 
 # %%
 # Path to the folder with all data
-PREFIX = "/Users/moctader/Thesis_code"
-
+PREFIX = "/Users/moctader/Arcada/"
 # Zoom level
 ZOOM_LEVEL = 10
 
 # Path to the output file
-DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples.pkl"
+DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples15.pkl"
 
 # %%
 csv_path = f"{PREFIX}/GTK_ASsoil_obs.csv"
-base_directory = f"{PREFIX}/output20/"
+base_directory = f"{PREFIX}check_data/15"
+
 
 # %%
 
@@ -48,6 +64,7 @@ tile_list = [(point.x, point.y) for point in samples['geometry']]
 
 samples["i"] = samples.index
 samples["filenames"] = samples.apply(lambda row: f"{row['CLASS']}/image_{row['i']}", axis=1)
+samples
 
 # %%
 # Extracting Latitude and Longitude from GeoDataFrame
@@ -76,7 +93,10 @@ samples["lon"] = samples["geometry"].map(get_lon_from_one_column)
 # Image Loading Function
 
 def load_data(filename, directory):
-    path = directory + "/" + filename + ".png"
+    path = directory + "/" + filename + ".png"  
+    if not os.path.exists(path):
+        print(f"File {path} does not exist. Skipping...")
+        return None
     image_array = np.array(Image.open(path))
 
     if len(image_array.shape) == 3 and image_array.shape[2] == 3:
@@ -86,16 +106,32 @@ def load_data(filename, directory):
 
 # %%
 # Loading Image Data for Multiple Files
+layers_list = []
 
 file_names = os.listdir(base_directory)
 
 # Filter out non-directory file_names
 files = [file for file in file_names if os.path.isdir(os.path.join(base_directory, file))]
 
+
 for single_file in files:
     samples[single_file] = samples["filenames"].map(
         lambda name, directory=os.path.join(base_directory, single_file): load_data(name, directory)
     )
+    
+
+
+# %%
+# import glob
+# all_file=glob.glob('/Users/moctader/Arcada/Dataset/*/')
+# for base_directory in all_file:
+#     file_names = os.listdir(base_directory)
+#     # Filter out non-directory file_names
+#     files = [file for file in file_names if os.path.isdir(os.path.join(base_directory, file))]
+
+#     for single_file in files:
+#         samples[single_file] = samples["filenames"].map(
+#             lambda name, directory=os.path.join(base_directory, single_file): load_data(name, directory))
 
 # %%
 # Creating a Binary Label Column Based on "CLASS"
@@ -107,6 +143,14 @@ def label_rows(row):
         return 0
 
 samples['label'] = samples.apply(label_rows, axis=1)
+samples
+
+# %%
+# Identify rows that contain any None values
+# Remove rows that contain any None values
+samples = samples.dropna()
+
+samples.shape
 
 # %%
 
@@ -140,3 +184,19 @@ samples["combined_channels"] = combined_images_list
 samples.to_pickle(DATAFRAME_OUTPUT_PATH)
 
 
+
+# %%
+# #file_names = os.listdir(base_directory)
+# import glob
+# file_names=glob.glob('/Users/moctader/Arcada/Dataset/*/')
+# files = [file for file in file_names if os.path.isdir(os.path.join(base_directory, file))]
+# for i in files:
+#     #print(i)
+#     print(os.path.join(base_directory, i))
+
+# %% [markdown]
+#
+
+# %%
+
+# %%
