@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
 # %%
 import geopandas as gpd
 import pandas as pd
@@ -353,6 +369,6 @@ model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y
 # 146/146 [==============================] - 82s 561ms/step - loss: 11.3605 - accuracy: 0.6971 - val_loss: 17.0023 - val_accuracy: 0.5536
 
 # %% [markdown]
-# 
+#
 
 
