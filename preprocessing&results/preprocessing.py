@@ -11,19 +11,21 @@ import math
 import csv
 from PIL import ImageDraw
 
-output_path='/Users/moctader/Arcada/check_data'
-output_root_directory = "/Users/moctader/Arcada/check_data"
-points = gpd.read_file("/Users/moctader/Thesis_code/GTK_ASsoil_obs.csv")
+# Read the files
+PREFIX = "/Users/moctader/Arcada/"
+output_path=f"{PREFIX}/check_data"
+output_root_directory = f"{PREFIX}/check_data"
+points = gpd.read_file(f"{PREFIX}/GTK_ASsoil_obs.csv")
 points.POINT_X = points.POINT_X.astype("float")
 points.POINT_Y = points.POINT_Y.astype("float")
 
-TILE_SIZE = 256
-
-
+#samples
 samples = gpd.GeoDataFrame(
     points.CLASS, crs="EPSG:3067", geometry=gpd.points_from_xy(points.POINT_X, points.POINT_Y)
 ).to_crs("WGS84")
 
+# Tile size
+TILE_SIZE = 256
 
 def project(p, zoom, point_class):
     lon, lat = p.geometry.x, p.geometry.y

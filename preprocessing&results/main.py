@@ -26,7 +26,7 @@ def draw_points_on_image(image, points, point_classes, marker_size=2):
     return image
 
 # Main function to call the all the values
-for zoom_level in range(2,16):  
+for zoom_level in range(12,13):  
     # positions = []
     # point_classes = []
     for i in range(samples.shape[0]):
