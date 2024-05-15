@@ -156,10 +156,7 @@ def combine_tiles(p, zoom, tile_template, t_value, point_class):
 
 
     cropped_image = combined_image.crop((left, upper, right, lower))
-    center_pixel_value = cropped_image.getpixel((center_x - left, center_y - upper))
-
-
-
+    #center_pixel_value = cropped_image.getpixel((center_x - left, center_y - upper))
 
     # plt.figure(figsize=(18, 5))  # Adjust the figure size as needed
 

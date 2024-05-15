@@ -9,9 +9,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.11.2
 #   kernelspec:
-#     display_name: vscode
+#     display_name: Python 3
 #     language: python
-#     name: vscode
+#     name: python3
 # ---
 
 # %%
@@ -25,15 +25,14 @@ import os
 # %%
 # Path to the folder with all data
 PREFIX = "/Users/moctader/Arcada/"
-# Zoom level
-ZOOM_LEVEL = 10
+zoom_level = 15
 
 # Path to the output file
-DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples15.pkl"
+DATAFRAME_OUTPUT_PATH = f"{PREFIX}/samples_pkl/samples_{zoom_level}.pkl"
 
 # %%
 csv_path = f"{PREFIX}/GTK_ASsoil_obs.csv"
-base_directory = f"{PREFIX}check_data/15"
+base_directory = f"{PREFIX}check_data/{zoom_level}"
 
 
 # %%
@@ -51,7 +50,6 @@ points.POINT_Y = points.POINT_Y.astype("float")
 
 # %%
 #samples
-
 samples = gpd.GeoDataFrame(
     points.CLASS, crs="EPSG:3067", geometry=gpd.points_from_xy(points.POINT_X, points.POINT_Y)
 ).to_crs("WGS84")
@@ -61,15 +59,12 @@ tile_list = [(point.x, point.y) for point in samples['geometry']]
 
 # %%
 # Creating image filename
-
 samples["i"] = samples.index
 samples["filenames"] = samples.apply(lambda row: f"{row['CLASS']}/image_{row['i']}", axis=1)
-samples
+
 
 # %%
 # Extracting Latitude and Longitude from GeoDataFrame
-
-
 def get_lat_from_row(p):
     lon, lat = p.geometry.x, p.geometry.y
     return lat
@@ -122,20 +117,6 @@ for single_file in files:
 
 
 # %%
-# import glob
-# all_file=glob.glob('/Users/moctader/Arcada/Dataset/*/')
-# for base_directory in all_file:
-#     file_names = os.listdir(base_directory)
-#     # Filter out non-directory file_names
-#     files = [file for file in file_names if os.path.isdir(os.path.join(base_directory, file))]
-
-#     for single_file in files:
-#         samples[single_file] = samples["filenames"].map(
-#             lambda name, directory=os.path.join(base_directory, single_file): load_data(name, directory))
-
-# %%
-# Creating a Binary Label Column Based on "CLASS"
-
 def label_rows(row):
     if 'ASS' == row['CLASS']:
         return 1
@@ -143,17 +124,13 @@ def label_rows(row):
         return 0
 
 samples['label'] = samples.apply(label_rows, axis=1)
-samples
 
 # %%
-# Identify rows that contain any None values
 # Remove rows that contain any None values
 samples = samples.dropna()
-
 samples.shape
 
 # %%
-
 # Combining Channels to Create Multi-channel Images
 
 combined_images_list = []
@@ -183,20 +160,3 @@ samples["combined_channels"] = combined_images_list
 
 samples.to_pickle(DATAFRAME_OUTPUT_PATH)
 
-
-
-# %%
-# #file_names = os.listdir(base_directory)
-# import glob
-# file_names=glob.glob('/Users/moctader/Arcada/Dataset/*/')
-# files = [file for file in file_names if os.path.isdir(os.path.join(base_directory, file))]
-# for i in files:
-#     #print(i)
-#     print(os.path.join(base_directory, i))
-
-# %% [markdown]
-#
-
-# %%
-
-# %%
